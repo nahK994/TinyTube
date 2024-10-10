@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Starting auth service on 127.0.0.1:8000")
 	InitDB()
 
 	router := mux.NewRouter()
