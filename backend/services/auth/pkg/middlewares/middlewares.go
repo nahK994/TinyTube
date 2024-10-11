@@ -1,6 +1,7 @@
-package main
+package middlewares
 
 import (
+	"auth-service/pkg/utils"
 	"net/http"
 	"strings"
 )
@@ -15,7 +16,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 		}
 
 		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
-		valid, _ := ValidateJWT(tokenString)
+		valid, _ := utils.ValidateJWT(tokenString)
 		if !valid {
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
