@@ -19,8 +19,9 @@ func main() {
 
 	router := mux.NewRouter()
 	// Public Routes (no middleware required)
-	router.HandleFunc("/register", handler.RegisterUser).Methods("POST")
-	router.HandleFunc("/", handler.UserList).Methods("GET")
+	router.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
+	router.HandleFunc("/delete-users/{id}", handler.DeleteUser).Methods(http.MethodDelete)
+	router.HandleFunc("/", handler.UserList).Methods(http.MethodGet)
 
 	fmt.Println("Starting auth service on 127.0.0.1:8000")
 	log.Fatal(http.ListenAndServe(":8000", router))

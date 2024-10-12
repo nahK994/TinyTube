@@ -15,6 +15,11 @@ func (d *DB) Register(user *User) error {
 	return db.QueryRow("select id, created_at from users where email=$1", user.Email).Scan(&user.ID, &user.CreatedAt)
 }
 
+func (d *DB) DeleteUser(id int) error {
+	_, err := d.db.Exec("delete from users where id=$1", id)
+	return err
+}
+
 func (d *DB) List() ([]User, error) {
 	rows, err := d.db.Query("SELECT id, name, email, profile_pic, created_at FROM users")
 	if err != nil {
@@ -23,7 +28,6 @@ func (d *DB) List() ([]User, error) {
 	defer rows.Close()
 
 	var users []User
-
 	for rows.Next() {
 		var user User
 		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
