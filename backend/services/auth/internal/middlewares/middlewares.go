@@ -1,12 +1,11 @@
 package middlewares
 
 import (
-	"auth-service/pkg/utils"
+	"auth-service/internal/utils"
 	"net/http"
 	"strings"
 )
 
-// JWTMiddleware validates JWT token from Authorization header
 func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")

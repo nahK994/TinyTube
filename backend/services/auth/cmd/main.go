@@ -1,9 +1,8 @@
 package main
 
 import (
-	"auth-service/pkg/db"
-	"auth-service/pkg/handlers"
-	"auth-service/pkg/middlewares"
+	"auth-service/internal/db"
+	"auth-service/internal/handlers"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,20 +11,17 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting auth service on 127.0.0.1:8000")
-	db.InitDB()
+	db, err := db.InitDB("user", "password", "127.0.0.1", 5432, "auth_db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	handler := handlers.GetHandler(db)
 
 	router := mux.NewRouter()
-
 	// Public Routes (no middleware required)
-	router.HandleFunc("/register", handlers.RegisterUser).Methods("POST")
-	router.HandleFunc("/login", handlers.LoginUser).Methods("POST")
-	router.HandleFunc("/token/refresh", handlers.RefreshToken).Methods("POST")
+	router.HandleFunc("/register", handler.RegisterUser).Methods("POST")
+	router.HandleFunc("/", handler.UserList).Methods("GET")
 
-	// Protected Routes (middleware for JWT validation)
-	router.Handle("/profile", middlewares.JWTMiddleware(http.HandlerFunc(handlers.GetProfile))).Methods("GET")
-	// router.Handle("/update", JWTMiddleware(http.HandlerFunc(UpdateUser))).Methods("PUT")
-	// router.Handle("/delete", JWTMiddleware(http.HandlerFunc(DeleteUser))).Methods("DELETE")
-
+	fmt.Println("Starting auth service on 127.0.0.1:8000")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
