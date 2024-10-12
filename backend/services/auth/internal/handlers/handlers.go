@@ -6,9 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -51,9 +48,7 @@ func (h *Handler) UserList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["id"]
-	id, err := strconv.Atoi(key)
+	id, err := getId(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -115,20 +110,19 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // 	})
 // }
 
-// // Get user profile
-// func GetProfile(w http.ResponseWriter, r *http.Request) {
-// 	// JWT token is validated in the middleware, now fetch user profile
-// 	token := strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)
-// 	_, email := utils.ValidateJWT(token)
+func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	id, err := getId(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// 	var user db.User
-// 	err := db.Instance.QueryRow("SELECT id, name, email, profile_pic, created_at FROM users WHERE email = $1", email).
-// 		Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
-
-// 	if err != nil {
-// 		http.Error(w, "User not found", http.StatusNotFound)
-// 		return
-// 	}
-
-// 	json.NewEncoder(w).Encode(user)
-// }
+	user, err1 := h.userRepo.GetUserDetails(id)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusNotFound)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(user)
+	}
+}

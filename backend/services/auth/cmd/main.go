@@ -21,6 +21,7 @@ func main() {
 	// Public Routes (no middleware required)
 	router.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
 	router.HandleFunc("/delete-users/{id}", handler.DeleteUser).Methods(http.MethodDelete)
+	router.HandleFunc("/users/{id}", handler.GetProfile).Methods(http.MethodGet)
 	router.HandleFunc("/", handler.UserList).Methods(http.MethodGet)
 
 	fmt.Println("Starting auth service on 127.0.0.1:8000")

@@ -20,6 +20,20 @@ func (d *DB) DeleteUser(id int) error {
 	return err
 }
 
+func (d *DB) GetUserDetails(id int) (*User, error) {
+	rows, err := d.db.Query("select name, email, profile_pic, created_at from users where id=$1", id)
+	if err != nil {
+		return nil, err
+	}
+
+	var user User
+	if !rows.Next() {
+		return nil, fmt.Errorf("not found")
+	}
+	rows.Scan(&user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
+	return &user, nil
+}
+
 func (d *DB) List() ([]User, error) {
 	rows, err := d.db.Query("SELECT id, name, email, profile_pic, created_at FROM users")
 	if err != nil {
