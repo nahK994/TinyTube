@@ -3,7 +3,7 @@ package app
 type AppConfig struct {
 	Host                   string
 	Port                   int
-	JWT_secrey_key         string
+	JWT_secret_key         []byte
 	JWT_exp_minutes        int
 	RefreshToken_exp_hours int
 	Bcrypt_password_cost   int
@@ -26,7 +26,7 @@ var appConfig Config = Config{
 	App: AppConfig{
 		Host:                   "127.0.0.1",
 		Port:                   8000,
-		JWT_secrey_key:         "JWT_secret_key",
+		JWT_secret_key:         []byte("JWT_secret_key"),
 		JWT_exp_minutes:        15,
 		RefreshToken_exp_hours: 7 * 24,
 		Bcrypt_password_cost:   14,

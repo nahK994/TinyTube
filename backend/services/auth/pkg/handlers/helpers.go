@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -32,24 +32,32 @@ func checkPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func generateJWT(email string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
-		"exp":   time.Now().Add(time.Duration(app.GetConfig().App.JWT_exp_minutes) * time.Minute).Unix(),
+func generateJWT(id int) (string, error) {
+	now := time.Now()
+	expTime := now.Add(time.Duration(app.GetConfig().App.JWT_exp_minutes) * time.Minute)
+
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub":    id,
+		"iss":    "TinyTube",
+		"exp":    expTime.Unix(),
+		"iat":    now.Unix(),
+		"userId": id,
 	})
 
-	jwtSecretKey := app.GetConfig().App.JWT_secrey_key
-	tokenString, err := token.SignedString([]byte(jwtSecretKey))
+	tokenString, err := claims.SignedString(app.GetConfig().App.JWT_secret_key)
 	return tokenString, err
 }
 
-func generateRefreshToken(email string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
-		"exp":   time.Now().Add(time.Duration(app.GetConfig().App.RefreshToken_exp_hours) * time.Hour).Unix(),
+func generateRefreshToken(id int) (string, error) {
+	expTime := time.Now().Add(time.Duration(app.GetConfig().App.RefreshToken_exp_hours) * time.Hour).Unix()
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId": id,
+		"iss":    "TinyTube",
+		"exp":    expTime,
+		"iat":    time.Now().Unix(),
 	})
 
-	jwtSecretKey := app.GetConfig().App.JWT_secrey_key
-	tokenString, err := token.SignedString([]byte(jwtSecretKey))
+	jwtSecretKey := app.GetConfig().App.JWT_secret_key
+	tokenString, err := claims.SignedString(jwtSecretKey)
 	return tokenString, err
 }

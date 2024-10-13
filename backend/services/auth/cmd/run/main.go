@@ -4,6 +4,7 @@ import (
 	"auth-service/pkg/app"
 	"auth-service/pkg/db"
 	"auth-service/pkg/handlers"
+	"auth-service/pkg/middlewares"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,9 +21,10 @@ func main() {
 	handler := handlers.GetHandler(db)
 
 	router := mux.NewRouter()
+	router.Handle("/users/{id}", middlewares.JWTMiddleware(http.HandlerFunc(handler.DeleteUser))).Methods(http.MethodDelete)
+	router.Handle("/users/{id}", middlewares.JWTMiddleware(http.HandlerFunc(handler.GetProfile))).Methods(http.MethodGet)
+
 	router.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
-	router.HandleFunc("/users/{id}", handler.DeleteUser).Methods(http.MethodDelete)
-	router.HandleFunc("/users/{id}", handler.GetProfile).Methods(http.MethodGet)
 	router.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
 	router.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
 

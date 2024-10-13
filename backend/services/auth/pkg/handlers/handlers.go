@@ -79,12 +79,12 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err1 := generateJWT(user.Email)
+	accessToken, err1 := generateJWT(user.ID)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
 		return
 	}
-	refreshToken, err2 := generateRefreshToken(user.Email)
+	refreshToken, err2 := generateRefreshToken(user.ID)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusInternalServerError)
 		return
