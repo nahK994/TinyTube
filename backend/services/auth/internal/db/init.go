@@ -1,6 +1,7 @@
 package db
 
 import (
+	"auth-service/internal/config"
 	"database/sql"
 	"fmt"
 	"log"
@@ -46,9 +47,9 @@ func createTables(db *sql.DB) error {
 	return nil
 }
 
-func InitDB(username, password, host string, port int, database_name string) (*DB, error) {
+func InitDB(dbConfig config.DBConfig) (*DB, error) {
 	var err error
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", username, password, host, port, database_name)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Name)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
