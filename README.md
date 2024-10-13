@@ -15,8 +15,8 @@
 
 ### Milestone 1: Initial Setup 🔨
 - Set up monorepo structure 🗂️
-- Implement basic User Management Service 👤🔑
-- Set up PostgreSQL database 🐘
+- Implement Auth Service 🔑
+- Implement User Management Service 👤
 
 ### Milestone 2: Video Upload and Transcoding 📹➡️📂
 - Build Video Upload Service 🎬
@@ -33,23 +33,25 @@
 
 ## Services 🛠️
 
-1. **User Management Service** 👥🔐
+1. **Auth Service** 👥🔐
    - JWT-based authentication 🔑🔒
+
+2. **User Management Service** 👥🔐
    - Profile management (name, email, profile pic, etc.) 🖼️📧
 
-2. **User Interaction Service** 💬👍
+3. **User Interaction Service** 💬👍
    - Likes, comments, subscriptions ❤️💬🔔
 
-3. **Recommendation Service** 🤖🎯
+4. **Recommendation Service** 🤖🎯
    - Video suggestions based on user behavior and viewing history 📈🎬
 
-4. **Video Upload & Transcoding Service** ⬆️📹➡️📂
+5. **Video Upload & Transcoding Service** ⬆️📹➡️📂
    - Transcoding videos into multiple formats 🖥️➡️📺
 
-5. **Video Streaming Service** 📡🎥
+6. **Video Streaming Service** 📡🎥
    - HLS or DASH video streaming 🔄📺
 
-6. **Thumbnail Management Service** 🖼️📸
+7. **Thumbnail Management Service** 🖼️📸
    - Generate or upload thumbnails for uploaded videos 📂🖼️
 
 ## How to Run the Project 🏃‍♂️🛠️
