@@ -1,9 +1,9 @@
 package main
 
 import (
-	"auth-service/internal/config"
-	"auth-service/internal/db"
-	"auth-service/internal/handlers"
+	"auth-service/pkg/app"
+	"auth-service/pkg/db"
+	"auth-service/pkg/handlers"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	conf := config.GetConfig()
+	conf := app.GetConfig()
 	db, err := db.InitDB(conf.Database)
 	if err != nil {
 		log.Fatal(err)

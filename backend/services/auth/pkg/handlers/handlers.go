@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"auth-service/internal/db"
-	"auth-service/internal/utils"
+	"auth-service/pkg/db"
+	"auth-service/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"

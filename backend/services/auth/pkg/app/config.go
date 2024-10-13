@@ -1,4 +1,4 @@
-package config
+package app
 
 type AppConfig struct {
 	Host string
