@@ -1,21 +1,40 @@
-echo "1) Start auth"
-echo "2) Kill auth"
-echo "3) Start auth db"
-echo "4) Kill auth db"
+echo "--- AUTH ---"
+echo "1) Start APP"
+echo "2) Kill APP"
+echo "3) Start DB"
+echo "4) Kill DB"
+echo "------------------"
+echo "--- USER MANAGEMENT ---"
+echo "5) Start APP"
+echo "6) Kill APP"
+echo "7) Start DB"
+echo "8) Kill DB"
+echo "------------------"
 
 read -p "Type: " cmd
-if [[ $cmd == 1 ]]; then
-    cd backend/services/auth/cmd/
-    go run main.go
-    cd ../../../..
-elif [[ $cmd == 2 ]]; then
-    sudo kill -9 $(sudo lsof -t -i:8000)
-elif [[ $cmd == 3 ]]; then
-    cd backend/
-    docker compose -f docker-compose.db.yml up -d
-    cd ..
-elif [[ $cmd == 4 ]]; then
-    cd backend/
-    docker compose -f docker-compose.db.yml down
-    cd ..
+
+if [[ $cmd -le 4 ]]; then
+    cd backend/services/auth/
+elif [[ $cmd -gt 4 && $cmd -le 8 ]]; then
+    cd backend/services/user-management/
+else
+    echo "Invalid option"
+    exit 1
 fi
+
+
+if [[ $((cmd % 4)) == 1 ]]; then
+    cd cmd/run/
+    go run main.go
+    cd ../..
+elif [[ $((cmd % 4)) == 2 ]]; then
+    cd cmd/kill/
+    go run main.go
+    cd ../..
+elif [[ $((cmd % 4)) == 3 ]]; then
+    docker compose -f db.yml up -d
+elif [[ $((cmd % 4)) == 0 ]]; then
+    docker compose -f db.yml down
+fi
+
+cd ../../..

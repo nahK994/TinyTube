@@ -21,14 +21,14 @@ type Config struct {
 var appConfig Config = Config{
 	App: AppConfig{
 		Host: "127.0.0.1",
-		Port: 8000,
+		Port: 8001,
 	},
 	Database: DBConfig{
 		Username: "user",
 		Password: "password",
 		Host:     "127.0.0.1",
-		Port:     5000,
-		Name:     "auth_db",
+		Port:     5001,
+		Name:     "user_management_db",
 	},
 }
 
