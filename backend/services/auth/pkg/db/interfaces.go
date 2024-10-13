@@ -5,4 +5,5 @@ type UserRepository interface {
 	List() ([]User, error)
 	DeleteUser(id int) error
 	GetUserDetails(id int) (*UserResponse, error)
+	GetUserByEmail(email string) (*User, error)
 }

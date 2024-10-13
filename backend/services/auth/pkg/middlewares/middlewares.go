@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"auth-service/internal/utils"
+	"auth-service/pkg/utils"
 	"net/http"
 	"strings"
 )

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"auth-service/pkg/db"
-	"auth-service/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,7 +19,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var user db.User
 	json.NewDecoder(r.Body).Decode(&user)
 
-	hashedPassword, _ := utils.HashPassword(user.Password)
+	hashedPassword, _ := hashPassword(user.Password)
 	user.Password = hashedPassword
 	if err := h.userRepo.Register(&user); err != nil {
 		fmt.Println(err)
@@ -61,29 +60,43 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// // Login user and return tokens
-// func LoginUser(w http.ResponseWriter, r *http.Request) {
-// 	var user db.User
-// 	var dbPassword string
+// Login user and return tokens
+func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var reqBody struct {
+		Email    string
+		Password string
+	}
 
-// 	json.NewDecoder(r.Body).Decode(&user)
+	json.NewDecoder(r.Body).Decode(&reqBody)
+	user, err := h.userRepo.GetUserByEmail(reqBody.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-// 	err := db.Instance.QueryRow("SELECT password FROM users WHERE email = $1", user.Email).Scan(&dbPassword)
-// 	if err == sql.ErrNoRows || !utils.CheckPasswordHash(user.Password, dbPassword) {
-// 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-// 		return
-// 	}
+	if !checkPasswordHash(reqBody.Password, user.Password) {
+		http.Error(w, "email or password mismatch", http.StatusBadRequest)
+		return
+	}
 
-// 	accessToken, _ := utils.GenerateJWT(user.Email)
-// 	refreshToken, _ := utils.GenerateRefreshToken(user.Email)
+	accessToken, err1 := generateJWT(user.Email)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusInternalServerError)
+		return
+	}
+	refreshToken, err2 := generateRefreshToken(user.Email)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// 	db.Instance.Exec("UPDATE users SET refresh_token = $1 WHERE email = $2", refreshToken, user.Email)
-
-// 	json.NewEncoder(w).Encode(map[string]string{
-// 		"access_token":  accessToken,
-// 		"refresh_token": refreshToken,
-// 	})
-// }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}
 
 // // Refresh access token using refresh token
 // func RefreshToken(w http.ResponseWriter, r *http.Request) {

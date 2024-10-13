@@ -34,6 +34,20 @@ func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
 	return &user, nil
 }
 
+func (d *DB) GetUserByEmail(email string) (*User, error) {
+	rows, err := d.db.Query("select id, name, email, profile_pic, created_at, password from users where email=$1", email)
+	if err != nil {
+		return nil, err
+	}
+
+	var user User
+	if !rows.Next() {
+		return nil, fmt.Errorf("user email not found")
+	}
+	rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt, &user.Password)
+	return &user, nil
+}
+
 func (d *DB) List() ([]User, error) {
 	rows, err := d.db.Query("SELECT id, name, email, profile_pic, created_at, password FROM users")
 	if err != nil {

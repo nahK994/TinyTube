@@ -24,6 +24,7 @@ func main() {
 	router.HandleFunc("/users/{id}", handler.DeleteUser).Methods(http.MethodDelete)
 	router.HandleFunc("/users/{id}", handler.GetProfile).Methods(http.MethodGet)
 	router.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
+	router.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	fmt.Println("Starting auth service on", srvAddress)
