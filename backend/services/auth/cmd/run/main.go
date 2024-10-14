@@ -21,8 +21,12 @@ func main() {
 	handler := handlers.GetHandler(db)
 
 	router := mux.NewRouter()
-	router.Handle("/users/{id}", middlewares.JWTMiddleware(http.HandlerFunc(handler.DeleteUser))).Methods(http.MethodDelete)
-	router.Handle("/users/{id}", middlewares.JWTMiddleware(http.HandlerFunc(handler.GetProfile))).Methods(http.MethodGet)
+
+	userRoutes := router.PathPrefix("/users").Subrouter()
+	userRoutes.Use(middlewares.Authenticate)
+	userRoutes.Use(middlewares.Authorize)
+	userRoutes.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
+	userRoutes.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
 
 	router.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
 	router.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
