@@ -1,4 +1,4 @@
-package middlewares
+package security
 
 import (
 	"auth-service/pkg/app"
@@ -55,7 +55,7 @@ func Authorize(next http.Handler) http.Handler {
 	})
 }
 
-func ChainMiddleware(next http.Handler) http.Handler {
+func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type middlewareFunc func(http.Handler) http.Handler
 		middlewares := []middlewareFunc{

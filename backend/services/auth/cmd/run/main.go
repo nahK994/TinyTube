@@ -4,7 +4,7 @@ import (
 	"auth-service/pkg/app"
 	"auth-service/pkg/db"
 	"auth-service/pkg/handlers"
-	"auth-service/pkg/middlewares"
+	"auth-service/pkg/security"
 	"fmt"
 	"log"
 	"net/http"
@@ -24,7 +24,7 @@ func main() {
 	r := mux.NewRouter()
 
 	userRouter := r.PathPrefix("/users").Subrouter()
-	userRouter.Use(middlewares.ChainMiddleware)
+	userRouter.Use(security.Middleware)
 	userRouter.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
 	userRouter.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
 
