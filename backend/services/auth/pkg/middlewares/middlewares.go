@@ -54,3 +54,19 @@ func Authorize(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func ChainMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		type middlewareFunc func(http.Handler) http.Handler
+		middlewares := []middlewareFunc{
+			Authenticate,
+			Authorize,
+		}
+
+		for i := len(middlewares) - 1; i >= 0; i-- {
+			next = middlewares[i](next)
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}

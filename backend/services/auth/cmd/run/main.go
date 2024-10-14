@@ -14,25 +14,24 @@ import (
 
 func main() {
 	conf := app.GetConfig()
+	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	db, err := db.InitDB(conf.Database)
 	if err != nil {
 		log.Fatal(err)
 	}
 	handler := handlers.GetHandler(db)
 
-	router := mux.NewRouter()
+	r := mux.NewRouter()
 
-	userRoutes := router.PathPrefix("/users").Subrouter()
-	userRoutes.Use(middlewares.Authenticate)
-	userRoutes.Use(middlewares.Authorize)
-	userRoutes.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
-	userRoutes.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
+	userRouter := r.PathPrefix("/users").Subrouter()
+	userRouter.Use(middlewares.ChainMiddleware)
+	userRouter.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
 
-	router.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
-	router.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
-	router.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
+	r.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
+	r.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
+	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
 
-	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	fmt.Println("Starting auth service on", srvAddress)
-	log.Fatal(http.ListenAndServe(srvAddress, router))
+	log.Fatal(http.ListenAndServe(srvAddress, r))
 }
