@@ -60,6 +60,26 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	id, err := getId(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var userInfo db.UserUpdateInfo
+	json.NewDecoder(r.Body).Decode(&userInfo)
+
+	user, err := h.userRepo.UpdateUser(id, &userInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
+}
+
 // Login user and return tokens
 func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var reqBody struct {
@@ -131,10 +151,11 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err1 := h.userRepo.GetUserDetails(id)
+
+	w.Header().Set("Content-Type", "application/json")
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusNotFound)
 	} else {
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(user)
 	}

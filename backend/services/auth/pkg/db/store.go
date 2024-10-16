@@ -21,7 +21,7 @@ func (d *DB) DeleteUser(id int) error {
 }
 
 func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
-	rows, err := d.db.Query("select name, email, profile_pic, created_at from users where id=$1", id)
+	rows, err := d.db.Query("select name, email, profile_pic from users where id=$1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -30,12 +30,33 @@ func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
 	if !rows.Next() {
 		return nil, fmt.Errorf("not found")
 	}
-	rows.Scan(&user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
+	rows.Scan(&user.Name, &user.Email, &user.ProfilePic)
 	return &user, nil
 }
 
+func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, error) {
+	var updatedUser UserResponse
+
+	err := d.db.QueryRow(`
+		UPDATE users
+		SET name=$1, profile_pic=$2
+		WHERE id=$3
+		RETURNING name, email, profile_pic
+	`, userUpdateInfo.Name, userUpdateInfo.ProfilePic, id).Scan(
+		&updatedUser.Name,
+		&updatedUser.Email,
+		&updatedUser.ProfilePic,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedUser, nil
+}
+
 func (d *DB) GetUserByEmail(email string) (*User, error) {
-	rows, err := d.db.Query("select id, name, email, profile_pic, created_at, password from users where email=$1", email)
+	rows, err := d.db.Query("select id, name, email, profile_pic, password from users where email=$1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +65,7 @@ func (d *DB) GetUserByEmail(email string) (*User, error) {
 	if !rows.Next() {
 		return nil, fmt.Errorf("user email not found")
 	}
-	rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt, &user.Password)
+	rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.Password)
 	return &user, nil
 }
 

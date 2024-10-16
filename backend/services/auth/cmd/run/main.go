@@ -27,6 +27,7 @@ func main() {
 	userRouter.Use(security.Middleware)
 	userRouter.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
 	userRouter.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{id}", handler.UpdateUser).Methods(http.MethodPut)
 
 	r.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
 	r.HandleFunc("/users", handler.UserList).Methods(http.MethodGet)
