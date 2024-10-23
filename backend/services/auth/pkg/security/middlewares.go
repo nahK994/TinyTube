@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Authenticate(next http.Handler) http.Handler {
+func authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		if tokenString == "" {
@@ -40,7 +40,7 @@ func Authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func Authorize(next http.Handler) http.Handler {
+func authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId := r.Context().Value("userId").(int)
 		vars := mux.Vars(r)
@@ -59,8 +59,8 @@ func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type middlewareFunc func(http.Handler) http.Handler
 		middlewares := []middlewareFunc{
-			Authenticate,
-			Authorize,
+			authenticate,
+			authorize,
 		}
 
 		for i := len(middlewares) - 1; i >= 0; i-- {

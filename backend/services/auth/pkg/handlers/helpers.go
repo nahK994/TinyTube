@@ -37,11 +37,10 @@ func generateJWT(id int) (string, error) {
 	expTime := now.Add(time.Duration(app.GetConfig().App.JWT_exp_minutes) * time.Minute)
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":    id,
-		"iss":    "TinyTube",
-		"exp":    expTime.Unix(),
-		"iat":    now.Unix(),
-		"userId": id,
+		"sub": id,
+		"iss": "TinyTube",
+		"exp": expTime.Unix(),
+		"iat": now.Unix(),
 	})
 
 	tokenString, err := claims.SignedString(app.GetConfig().App.JWT_secret_key)
