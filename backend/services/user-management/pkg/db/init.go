@@ -13,6 +13,25 @@ type DB struct {
 	db *sql.DB
 }
 
+func createTables(db *sql.DB) error {
+	createUserTable := `
+	CREATE TABLE IF NOT EXISTS users (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(100) NOT NULL,
+		email VARCHAR(100) UNIQUE NOT NULL,
+		password VARCHAR(255) NOT NULL,
+		profile_pic TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+
+	if _, err := db.Exec(createUserTable); err != nil {
+		return fmt.Errorf("could not create users table: %w", err)
+	}
+
+	return nil
+}
+
 func InitDB(dbConfig app.DBConfig) (*DB, error) {
 	var err error
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Name)
@@ -22,6 +41,9 @@ func InitDB(dbConfig app.DBConfig) (*DB, error) {
 	}
 
 	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+	if err := createTables(db); err != nil {
 		return nil, err
 	}
 

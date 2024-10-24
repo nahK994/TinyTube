@@ -1,3 +1,9 @@
 package db
 
-type UserRepository interface{}
+type UserRepository interface {
+	Register(user *User) error
+	List() ([]User, error)
+	DeleteUser(id int) error
+	GetUserDetails(id int) (*UserResponse, error)
+	UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, error)
+}

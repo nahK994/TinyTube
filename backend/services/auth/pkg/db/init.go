@@ -25,14 +25,12 @@ func createTables(db *sql.DB) error {
 	);
 	`
 
-	createTokensTable := `
+	authTable := `
 	CREATE TABLE IF NOT EXISTS tokens (
-		id SERIAL PRIMARY KEY,
-		user_id INT NOT NULL,
-		refresh_token TEXT NOT NULL,
-		expires_at TIMESTAMP NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		user_id SERIAL PRIMARY KEY,
+		access_token VARCHAR(100) NOT NULL,
+		refresh_token VARCHAR(100) UNIQUE NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Using TIMESTAMP for datetime
 	);
 	`
 
@@ -40,7 +38,7 @@ func createTables(db *sql.DB) error {
 		return fmt.Errorf("could not create users table: %w", err)
 	}
 
-	if _, err := db.Exec(createTokensTable); err != nil {
+	if _, err := db.Exec(authTable); err != nil {
 		return fmt.Errorf("could not create tokens table: %w", err)
 	}
 

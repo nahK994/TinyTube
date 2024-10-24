@@ -22,12 +22,12 @@ type Config struct {
 	Database DBConfig
 }
 
-var appConfig Config = Config{
+var authConfig Config = Config{
 	App: AppConfig{
 		Host:                   "127.0.0.1",
 		Port:                   8000,
 		JWT_secret_key:         []byte("JWT_secret_key"),
-		JWT_exp_minutes:        15,
+		JWT_exp_minutes:        60,
 		RefreshToken_exp_hours: 7 * 24,
 		Bcrypt_password_cost:   14,
 	},
@@ -41,5 +41,5 @@ var appConfig Config = Config{
 }
 
 func GetConfig() Config {
-	return appConfig
+	return authConfig
 }

@@ -1,8 +1,10 @@
 package app
 
 type AppConfig struct {
-	Host string
-	Port int
+	Host                 string
+	Port                 int
+	JWT_secret_key       []byte
+	Bcrypt_password_cost int
 }
 
 type DBConfig struct {
@@ -18,10 +20,12 @@ type Config struct {
 	Database DBConfig
 }
 
-var appConfig Config = Config{
+var userManagementConfig Config = Config{
 	App: AppConfig{
-		Host: "127.0.0.1",
-		Port: 8001,
+		Host:                 "127.0.0.1",
+		Port:                 8001,
+		JWT_secret_key:       []byte("JWT_secret_key"),
+		Bcrypt_password_cost: 14,
 	},
 	Database: DBConfig{
 		Username: "user",
@@ -33,5 +37,5 @@ var appConfig Config = Config{
 }
 
 func GetConfig() Config {
-	return appConfig
+	return userManagementConfig
 }
