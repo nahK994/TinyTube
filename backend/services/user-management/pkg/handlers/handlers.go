@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"user-management/pkg/db"
+	"user-management/pkg/mq"
 )
 
 type Handler struct {
-	userRepo db.UserRepository
+	userRepo db.Repository
+	msg      mq.MessageProcessor
 }
 
-func GetHandler(userRepo db.UserRepository) *Handler {
-	return &Handler{userRepo: userRepo}
+func GetHandler(userRepo db.Repository, msg mq.MessageProcessor) *Handler {
+	return &Handler{userRepo: userRepo, msg: msg}
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -90,6 +92,9 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error registering user", http.StatusInternalServerError)
 		return
 	}
+
+	//ToDo: Need to complete it
+	h.msg.PublishMessage("")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

@@ -7,6 +7,7 @@ import (
 	"user-management/pkg/app"
 	"user-management/pkg/db"
 	"user-management/pkg/handlers"
+	"user-management/pkg/mq"
 	"user-management/pkg/security"
 
 	"github.com/gorilla/mux"
@@ -14,11 +15,15 @@ import (
 
 func main() {
 	conf := app.GetConfig()
-	db, err := db.InitDB(conf.Database)
+	db, err := db.InitDB(conf.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
-	handler := handlers.GetHandler(db)
+	mq, err := mq.InitMQ(conf.MQ)
+	if err != nil {
+		log.Fatal(err)
+	}
+	handler := handlers.GetHandler(db, mq)
 
 	r := mux.NewRouter()
 	userRouter := r.PathPrefix("/users").Subrouter()

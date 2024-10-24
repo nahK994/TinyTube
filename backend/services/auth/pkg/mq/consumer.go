@@ -4,8 +4,8 @@ import (
 	"log"
 )
 
-func ConsumeMessages() {
-	msgs, err := channel.Consume(
+func (mq *MQ) ConsumeMessages() {
+	msgs, err := mq.channel.Consume(
 		"queue_name", // queue
 		"",           // consumer
 		true,         // auto-ack

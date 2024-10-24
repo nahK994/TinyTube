@@ -4,6 +4,7 @@ import (
 	"auth-service/pkg/app"
 	"auth-service/pkg/db"
 	"auth-service/pkg/handlers"
+	"auth-service/pkg/mq"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,11 +14,18 @@ import (
 
 func main() {
 	conf := app.GetConfig()
-	db, err := db.InitDB(conf.Database)
+	db, err := db.InitDB(conf.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	handler := handlers.GetHandler(db)
+
+	mq, err := mq.InitMQ(conf.MQ)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mq.ConsumeMessages()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)

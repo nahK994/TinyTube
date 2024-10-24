@@ -6,8 +6,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func PublishMessage(body string) error {
-	err := channel.Publish(
+func (mq *MQ) PublishMessage(body string) error {
+	err := mq.channel.Publish(
 		"",           // exchange
 		"queue_name", // routing key (queue name)
 		false,        // mandatory

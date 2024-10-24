@@ -2,6 +2,10 @@ package db
 
 import "fmt"
 
+type Repository interface {
+	GetUserByEmail(email string) (*User, error)
+}
+
 func (d *DB) GetUserByEmail(email string) (*User, error) {
 	rows, err := d.db.Query("select id, name, email, profile_pic, password from users where email=$1", email)
 	if err != nil {

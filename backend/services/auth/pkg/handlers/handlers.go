@@ -7,10 +7,10 @@ import (
 )
 
 type Handler struct {
-	userRepo db.UserRepository
+	userRepo db.Repository
 }
 
-func GetHandler(userRepo db.UserRepository) *Handler {
+func GetHandler(userRepo db.Repository) *Handler {
 	return &Handler{userRepo: userRepo}
 }
 
