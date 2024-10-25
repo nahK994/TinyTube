@@ -94,7 +94,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//ToDo: Need to complete it
-	h.msg.PublishMessage("")
+	h.msg.PublishMessage("message -> HaHa")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
