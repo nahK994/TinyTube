@@ -10,6 +10,7 @@ import (
 type MQ struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
+	queue   amqp.Queue
 }
 
 func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
@@ -18,29 +19,30 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
 	channel, err := conn.Channel()
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
-	channel.Close()
 
-	// Declare queue, exchange, etc.
-	_, err = channel.QueueDeclare(
-		"queue_name", // name
-		true,         // durable
-		false,        // delete when unused
-		false,        // exclusive
-		false,        // no-wait
-		nil,          // arguments
+	queue, err := channel.QueueDeclare(
+		"queue_name",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
+		conn.Close()
+		channel.Close()
 		return nil, err
 	}
 
 	return &MQ{
 		conn:    conn,
 		channel: channel,
+		queue:   queue,
 	}, nil
 }

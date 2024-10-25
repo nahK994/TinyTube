@@ -8,10 +8,10 @@ import (
 
 func (mq *MQ) PublishMessage(body string) error {
 	err := mq.channel.Publish(
-		"",           // exchange
-		"queue_name", // routing key (queue name)
-		false,        // mandatory
-		false,        // immediate
+		"",            // exchange
+		mq.queue.Name, // routing key (queue name)
+		false,         // mandatory
+		false,         // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),

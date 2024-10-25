@@ -25,7 +25,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mq.ConsumeMessages()
+	err = mq.ConsumeMessages()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)

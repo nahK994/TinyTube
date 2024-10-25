@@ -4,19 +4,18 @@ import (
 	"log"
 )
 
-func (mq *MQ) ConsumeMessages() {
+func (mq *MQ) ConsumeMessages() error {
 	msgs, err := mq.channel.Consume(
-		"queue_name", // queue
-		"",           // consumer
-		true,         // auto-ack
-		false,        // exclusive
-		false,        // no-local
-		false,        // no-wait
-		nil,          // args
+		mq.queue.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
-		log.Fatalf("Failed to register a consumer: %s", err)
-		return
+		return err
 	}
 
 	go func() {
@@ -25,4 +24,5 @@ func (mq *MQ) ConsumeMessages() {
 			// Process the message here
 		}
 	}()
+	return nil
 }
