@@ -21,6 +21,19 @@ echo "------------------"
 read -p "Type: " cmd
 
 
+if [[ $cmd == 31 ]]; then
+    cd backend/
+    docker compose -f rabbitmq.yml up -d 
+    cd ..
+    exit 0
+elif [[ $cmd == 32 ]]; then
+    cd backend/
+    docker compose -f rabbitmq.yml down
+    cd ..
+    exit 0
+fi
+
+
 if [[ $cmd -ge 1 && $cmd -le 5 ]]; then
     cd backend/services/auth/ || exit
 elif [[ $cmd -ge 6 && $cmd -le 10 ]]; then
@@ -28,19 +41,6 @@ elif [[ $cmd -ge 6 && $cmd -le 10 ]]; then
 else
     echo "Invalid option"
     exit 1
-fi
-
-
-if [[ $cmd == 31 ]]; then
-    cd backend/
-    docker compose -f rabbitmq.yml up -d || exit
-    cd ..
-    exit 0
-elif [[ $cmd == 32 ]]; then
-    cd backend/
-    docker compose -f rabbitmq.yml down || exit
-    cd ..
-    exit 0
 fi
 
 
