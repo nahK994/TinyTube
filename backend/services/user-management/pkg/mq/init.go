@@ -46,3 +46,12 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 		queue:   queue,
 	}, nil
 }
+
+func (mq *MQ) Close() {
+	if mq.channel != nil {
+		mq.channel.Close()
+	}
+	if mq.conn != nil {
+		mq.conn.Close()
+	}
+}

@@ -17,7 +17,6 @@ func (mq *MQ) PublishMessage(body string) error {
 			Body:        []byte(body),
 		})
 	if err != nil {
-		log.Printf("Failed to publish message: %s", err)
 		return err
 	}
 	log.Printf("Message published: %s", body)

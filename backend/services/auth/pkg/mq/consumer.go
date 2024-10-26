@@ -4,7 +4,7 @@ import (
 	"log"
 )
 
-func (mq *MQ) ConsumeMessages() error {
+func (mq *MQ) StartConsumeMessages() error {
 	msgs, err := mq.channel.Consume(
 		mq.queue.Name,
 		"",

@@ -23,10 +23,7 @@ func main() {
 
 	mq, err := mq.InitMQ(conf.MQ)
 	if err != nil {
-		log.Fatal(err)
-	}
-	err = mq.ConsumeMessages()
-	if err != nil {
+		mq.Close()
 		log.Fatal(err)
 	}
 
