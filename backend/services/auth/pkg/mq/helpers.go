@@ -2,7 +2,6 @@ package mq
 
 const (
 	UserCreate     = "Create"
-	UserUpdate     = "Update"
 	UserDelete     = "Delete"
 	ChangePassword = "ChangePassword"
 )

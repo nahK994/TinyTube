@@ -5,22 +5,32 @@ import (
 )
 
 type Repository interface {
-	Register(user *User) error
-	List() ([]User, error)
+	Register(user *UserRequest) (*UserResponse, error)
+	List() ([]UserResponse, error)
 	DeleteUser(id int) error
 	GetUserDetails(id int) (*UserResponse, error)
-	UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, error)
+	UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserUpdateInfo, error)
 }
 
-func (d *DB) Register(user *User) error {
-	db := d.db
-	_, err := db.Exec(`INSERT INTO users (name, email, password, profile_pic) 
-	VALUES ($1, $2, $3, $4)`, user.Name, user.Email, user.Password, user.ProfilePic)
+func (d *DB) Register(userRequest *UserRequest) (*UserResponse, error) {
+	var userResponse UserResponse
+	err := d.db.QueryRow(`
+	INSERT INTO users (name, email, profile_pic) 
+	VALUES ($1, $2, $3, $4)
+	RETURNING id, name, email, profile_pic, created_at`,
+		userRequest.Name, userRequest.Email, userRequest.ProfilePic).Scan(
+		&userResponse.ID,
+		&userResponse.Name,
+		&userResponse.Email,
+		&userResponse.ProfilePic,
+		&userResponse.CreatedAt,
+	)
+
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return db.QueryRow("select id, created_at from users where email=$1", user.Email).Scan(&user.ID, &user.CreatedAt)
+	return &userResponse, nil
 }
 
 func (d *DB) DeleteUser(id int) error {
@@ -29,7 +39,7 @@ func (d *DB) DeleteUser(id int) error {
 }
 
 func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
-	rows, err := d.db.Query("select name, email, profile_pic from users where id=$1", id)
+	rows, err := d.db.Query("select name, email, profile_pic, created_at from users where id=$1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -38,12 +48,12 @@ func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
 	if !rows.Next() {
 		return nil, fmt.Errorf("not found")
 	}
-	rows.Scan(&user.Name, &user.Email, &user.ProfilePic)
+	rows.Scan(&user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
 	return &user, nil
 }
 
-func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, error) {
-	var updatedUser UserResponse
+func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserUpdateInfo, error) {
+	var updatedUser UserUpdateInfo
 
 	err := d.db.QueryRow(`
 		UPDATE users
@@ -52,7 +62,6 @@ func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, 
 		RETURNING name, email, profile_pic
 	`, userUpdateInfo.Name, userUpdateInfo.ProfilePic, id).Scan(
 		&updatedUser.Name,
-		&updatedUser.Email,
 		&updatedUser.ProfilePic,
 	)
 
@@ -63,17 +72,17 @@ func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserResponse, 
 	return &updatedUser, nil
 }
 
-func (d *DB) List() ([]User, error) {
-	rows, err := d.db.Query("SELECT id, name, email, profile_pic, created_at, password FROM users")
+func (d *DB) List() ([]UserResponse, error) {
+	rows, err := d.db.Query("SELECT id, name, email, profile_pic, created_at FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("failed to query users: %w", err)
 	}
 	defer rows.Close()
 
-	var users []User
+	var users []UserResponse
 	for rows.Next() {
-		var user User
-		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt, &user.Password)
+		var user UserResponse
+		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.ProfilePic, &user.CreatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan user: %w", err)
 		}

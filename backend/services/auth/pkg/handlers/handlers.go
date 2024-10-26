@@ -7,11 +7,11 @@ import (
 )
 
 type Handler struct {
-	userRepo db.Repository
+	repo db.Repository
 }
 
 func GetHandler(userRepo db.Repository) *Handler {
-	return &Handler{userRepo: userRepo}
+	return &Handler{repo: userRepo}
 }
 
 func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewDecoder(r.Body).Decode(&reqBody)
-	user, err := h.userRepo.GetUserByEmail(reqBody.Email)
+	user, err := h.repo.GetUserByEmail(reqBody.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -49,4 +49,37 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
+}
+
+func (h *Handler) CreateUser(userCreate db.UserCreate) error {
+	hashedPassword, err := hashPassword(userCreate.Password)
+	if err != nil {
+		return err
+	}
+
+	user := db.UserCreate{
+		ID:       userCreate.ID,
+		Email:    userCreate.Email,
+		Password: hashedPassword,
+	}
+	err = h.repo.CreateUser(&user)
+	return err
+}
+
+func (h *Handler) UpdatePassword(userPassword db.PasswordUpdate) error {
+	hashedPassword, err := hashPassword(userPassword.Password)
+	if err != nil {
+		return err
+	}
+
+	err = h.repo.UpdatePassword(&db.PasswordUpdate{
+		Email:    userPassword.Email,
+		Password: hashedPassword,
+	})
+	return err
+}
+
+func (h *Handler) DeleteUser(id int) error {
+	err := h.repo.DeleteUser(id)
+	return err
 }

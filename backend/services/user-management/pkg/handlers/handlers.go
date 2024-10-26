@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"user-management/pkg/db"
 	"user-management/pkg/mq"
@@ -82,14 +81,12 @@ func (h *Handler) UserList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	var user db.User
-	json.NewDecoder(r.Body).Decode(&user)
+	var userRequest db.UserRequest
+	json.NewDecoder(r.Body).Decode(&userRequest)
 
-	hashedPassword, _ := hashPassword(user.Password)
-	user.Password = hashedPassword
-	if err := h.userRepo.Register(&user); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Error registering user", http.StatusInternalServerError)
+	user, err := h.userRepo.Register(&userRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -98,7 +95,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		Message: mq.Message{
 			Email:    user.Email,
 			Id:       user.ID,
-			Password: user.Password,
+			Password: userRequest.Password,
 		},
 	}
 	h.msg.PublishMessage(info)
