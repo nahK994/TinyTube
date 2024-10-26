@@ -22,7 +22,6 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 
 	channel, err := conn.Channel()
 	if err != nil {
-		conn.Close()
 		return nil, err
 	}
 
@@ -35,8 +34,6 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 		nil,
 	)
 	if err != nil {
-		conn.Close()
-		channel.Close()
 		return nil, err
 	}
 
@@ -48,13 +45,4 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 	mq.StartConsumeMessages()
 
 	return mq, nil
-}
-
-func (mq *MQ) Close() {
-	if mq.channel != nil {
-		mq.channel.Close()
-	}
-	if mq.conn != nil {
-		mq.conn.Close()
-	}
 }

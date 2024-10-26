@@ -93,8 +93,15 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//ToDo: Need to complete it
-	h.msg.PublishMessage("message -> HaHa")
+	info := mq.MessageAction{
+		ActionType: mq.UserCreate,
+		Message: mq.Message{
+			Email:    user.Email,
+			Id:       user.ID,
+			Password: user.Password,
+		},
+	}
+	h.msg.PublishMessage(info)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
