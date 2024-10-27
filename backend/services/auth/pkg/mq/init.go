@@ -37,12 +37,9 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 		return nil, err
 	}
 
-	mq := &MQ{
+	return &MQ{
 		conn:    conn,
 		channel: channel,
 		queue:   queue,
-	}
-	mq.StartConsumeMessages()
-
-	return mq, nil
+	}, nil
 }
