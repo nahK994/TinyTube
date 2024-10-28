@@ -57,12 +57,11 @@ func (h *Handler) CreateUser(userCreate db.UserCreate) error {
 		return err
 	}
 
-	user := db.UserCreate{
+	err = h.repo.CreateUser(&db.UserCreate{
 		ID:       userCreate.ID,
 		Email:    userCreate.Email,
 		Password: hashedPassword,
-	}
-	err = h.repo.CreateUser(&user)
+	})
 	return err
 }
 

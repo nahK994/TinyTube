@@ -10,7 +10,7 @@ type Repository interface {
 }
 
 func (d *DB) GetUserByEmail(email string) (*UserDetails, error) {
-	rows, err := d.db.Query("select id, password from users where email=$1", email)
+	rows, err := d.db.Query("SELECT id, password FROM users WHERE email=$1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func (d *DB) GetUserByEmail(email string) (*UserDetails, error) {
 
 func (d *DB) CreateUser(userRequest *UserCreate) error {
 	_, err := d.db.Exec(`
-	INSERT INTO users (email, password) VALUES ($1, $2)`,
-		userRequest.Email, userRequest.Password)
+	INSERT INTO users (id, email, password) VALUES ($1, $2, $3)`,
+		userRequest.ID, userRequest.Email, userRequest.Password)
 
 	if err != nil {
 		return err
@@ -41,6 +41,6 @@ func (d *DB) UpdatePassword(info *PasswordUpdate) error {
 }
 
 func (d *DB) DeleteUser(id int) error {
-	_, err := d.db.Exec("delete from users where id=$1", id)
+	_, err := d.db.Exec("DELETE FROM users WHERE id=$1", id)
 	return err
 }

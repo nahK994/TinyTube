@@ -26,6 +26,13 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	info := mq.MessageAction{
+		ActionType: mq.UserDelete,
+		Message: mq.Message{
+			Id: id,
+		},
+	}
+	h.msg.PublishMessage(info)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -66,18 +73,6 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(user)
 	}
-}
-
-func (h *Handler) UserList(w http.ResponseWriter, r *http.Request) {
-	users, err := h.userRepo.List()
-	if err != nil {
-		http.Error(w, "Error registering user", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(users)
 }
 
 func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {

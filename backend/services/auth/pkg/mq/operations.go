@@ -4,6 +4,7 @@ import (
 	"auth-service/pkg/db"
 	"auth-service/pkg/handlers"
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -44,10 +45,10 @@ func (mq *MQ) startConsumeMessages(handler *handlers.Handler) error {
 		for d := range msgs {
 			if err := json.Unmarshal(d.Body, &info); err != nil {
 				log.Printf("Failed to unmarshal message: %v", err)
-				d.Nack(false, false) // Do not acknowledge the message, allow re-queuing
-				continue             // Skip to the next message
+				// d.Nack(false, false) // Do not acknowledge the message, allow re-queuing
+				continue // Skip to the next message
 			}
-
+			fmt.Println("received message", info)
 			var processErr error
 			switch info.ActionType {
 			case UserCreate:
@@ -68,9 +69,10 @@ func (mq *MQ) startConsumeMessages(handler *handlers.Handler) error {
 			if processErr != nil {
 				log.Printf("Failed to process message %v: %v", info, processErr)
 				d.Nack(false, false) // Do not acknowledge the message
-			} else {
-				d.Ack(false) // Acknowledge the message
 			}
+			// else {
+			// 	d.Ack(false) // Acknowledge the message
+			// }
 		}
 	}()
 	return nil
