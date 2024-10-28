@@ -72,7 +72,7 @@ func (h *Handler) UpdatePassword(userPassword db.PasswordUpdate) error {
 	}
 
 	err = h.repo.UpdatePassword(&db.PasswordUpdate{
-		Email:    userPassword.Email,
+		Id:       userPassword.Id,
 		Password: hashedPassword,
 	})
 	return err

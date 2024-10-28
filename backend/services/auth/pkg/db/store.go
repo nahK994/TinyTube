@@ -36,7 +36,7 @@ func (d *DB) CreateUser(userRequest *UserCreate) error {
 }
 
 func (d *DB) UpdatePassword(info *PasswordUpdate) error {
-	_, err := d.db.Exec(`UPDATE users SET password=$1 WHERE email=$2`, info.Password, info.Email)
+	_, err := d.db.Exec(`UPDATE users SET password=$1 WHERE id=$2`, info.Password, info.Id)
 	return err
 }
 

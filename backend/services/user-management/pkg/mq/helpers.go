@@ -1,18 +1,17 @@
 package mq
 
 const (
-	UserCreate     = "Create"
-	UserDelete     = "Delete"
-	ChangePassword = "ChangePassword"
+	UserCreate = "Create"
+	UserDelete = "Delete"
 )
 
-type Message struct {
+type CreateMessage struct {
 	Email    string `json:"email"`
 	Id       int    `json:"id"`
 	Password string `json:"password"`
 }
 
 type MessageAction struct {
-	ActionType string  `json:"actionType"`
-	Message    Message `json:"message"`
+	ActionType string      `json:"actionType"`
+	Message    interface{} `json:"message"`
 }

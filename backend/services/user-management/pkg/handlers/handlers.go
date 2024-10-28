@@ -28,9 +28,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	info := mq.MessageAction{
 		ActionType: mq.UserDelete,
-		Message: mq.Message{
-			Id: id,
-		},
+		Message:    id,
 	}
 	h.msg.PublishMessage(info)
 	w.Header().Set("Content-Type", "application/json")
@@ -87,7 +85,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	info := mq.MessageAction{
 		ActionType: mq.UserCreate,
-		Message: mq.Message{
+		Message: mq.CreateMessage{
 			Email:    user.Email,
 			Id:       user.ID,
 			Password: userRequest.Password,

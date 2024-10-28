@@ -52,18 +52,15 @@ func (mq *MQ) startConsumeMessages(handler *handlers.Handler) error {
 			var processErr error
 			switch info.ActionType {
 			case UserCreate:
+				info, _ := info.Message.(CreateMessage)
 				processErr = handler.CreateUser(db.UserCreate{
-					ID:       info.Message.Id,
-					Email:    info.Message.Email,
-					Password: info.Message.Password,
-				})
-			case ChangePassword:
-				processErr = handler.UpdatePassword(db.PasswordUpdate{
-					Email:    info.Message.Email,
-					Password: info.Message.Password,
+					ID:       info.Id,
+					Email:    info.Email,
+					Password: info.Password,
 				})
 			case UserDelete:
-				processErr = handler.DeleteUser(info.Message.Id)
+				info, _ := info.Message.(int)
+				processErr = handler.DeleteUser(info)
 			}
 
 			if processErr != nil {
