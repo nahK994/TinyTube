@@ -20,46 +20,56 @@ echo "32) Kill"
 echo "------------------"
 read -p "Type: " cmd
 
-
 if [[ $cmd == 31 ]]; then
-    cd backend/
-    docker compose -f rabbitmq.yml up -d 
-    cd ..
+    pushd backend/ || exit
+    docker compose -f rabbitmq.yml up -d && echo "RabbitMQ started"
+    popd || exit
     exit 0
 elif [[ $cmd == 32 ]]; then
-    cd backend/
-    docker compose -f rabbitmq.yml down
-    cd ..
+    pushd backend/ || exit
+    docker compose -f rabbitmq.yml down && echo "RabbitMQ stopped"
+    popd || exit
     exit 0
 fi
 
+app_dir=''
+db_dir=''
 
 if [[ $cmd -ge 1 && $cmd -le 5 ]]; then
-    cd backend/services/auth/ || exit
+    app_dir=backend/services/auth/
+    db_dir=backend/db/auth/
 elif [[ $cmd -ge 6 && $cmd -le 10 ]]; then
-    cd backend/services/user-management/ || exit
+    app_dir=backend/services/user-management/
+    db_dir=backend/db/user-management/
 else
     echo "Invalid option"
     exit 1
 fi
 
-
 if [[ $((cmd % 5)) == 1 ]]; then
-    cd cmd/run/ || exit
-    go run main.go || exit
-    cd ../..
+    pushd "$app_dir/cmd/run/" || exit
+    go run main.go && echo "Auth/User-Management APP started"
+    popd || exit
 elif [[ $((cmd % 5)) == 2 ]]; then
-    cd cmd/kill/ || exit
-    go run main.go || exit
-    cd ../..
+    pushd "$app_dir/cmd/kill/" || exit
+    go run main.go && echo "Auth/User-Management APP stopped"
+    popd || exit
 elif [[ $((cmd % 5)) == 3 ]]; then
-    docker compose -f db.yml up -d || exit
+    pushd "$db_dir" || exit
+    docker compose -f db.yml up -d && echo "Database started"
+    popd || exit
+    pushd "$db_dir/.." || exit
+    docker compose -f pgadmin.yml up -d && echo "pgAdmin started"
+    popd || exit
 elif [[ $((cmd % 5)) == 4 ]]; then
-    docker compose -f db.yml down || exit
+    pushd "$db_dir" || exit
+    docker compose -f db.yml down && echo "Database stopped"
+    popd || exit
+    pushd "$db_dir/.." || exit
+    docker compose -f pgadmin.yml down && echo "pgAdmin stopped"
+    popd || exit
 elif [[ $((cmd % 5)) == 0 ]]; then
-    cd cmd/playground/ || exit
-    go run main.go || exit
-    cd ../..
+    pushd "$app_dir/cmd/playground/" || exit
+    go run main.go && echo "Playground started"
+    popd || exit
 fi
-
-cd ../../..

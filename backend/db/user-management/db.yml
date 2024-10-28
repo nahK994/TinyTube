@@ -1,0 +1,12 @@
+version: '3'
+services:
+  auth_db:
+    container_name: user_management_db
+    image: postgres
+    restart: always
+    ports:
+      - 5001:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=user_management_db
