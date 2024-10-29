@@ -41,35 +41,46 @@ func (mq *MQ) startConsumeMessages(handler *handlers.Handler) error {
 	}
 
 	go func() {
-		var info MessageAction
 		for d := range msgs {
+			var info MessageAction
 			if err := json.Unmarshal(d.Body, &info); err != nil {
 				log.Printf("Failed to unmarshal message: %v", err)
-				// d.Nack(false, false) // Do not acknowledge the message, allow re-queuing
 				continue // Skip to the next message
 			}
+
 			fmt.Println("received message", info)
-			var processErr error
+
 			switch info.ActionType {
 			case UserCreate:
-				info, _ := info.Message.(CreateMessage)
-				processErr = handler.CreateUser(db.UserCreate{
-					ID:       info.Id,
-					Email:    info.Email,
-					Password: info.Password,
-				})
-			case UserDelete:
-				info, _ := info.Message.(int)
-				processErr = handler.DeleteUser(info)
-			}
+				var msg CreateMessage
+				messageBytes, _ := json.Marshal(info.Message) // Convert to JSON bytes
+				if err := json.Unmarshal(messageBytes, &msg); err != nil {
+					log.Printf("Failed to unmarshal message to CreateMessage: %v", err)
+					continue
+				}
 
-			if processErr != nil {
-				log.Printf("Failed to process message %v: %v", info, processErr)
-				d.Nack(false, false) // Do not acknowledge the message
+				processErr := handler.CreateUser(db.UserCreate{
+					ID:       msg.Id,
+					Email:    msg.Email,
+					Password: msg.Password,
+				})
+				if processErr != nil {
+					log.Printf("Failed to process message %v: %v", info, processErr)
+					d.Nack(false, false)
+				}
+
+			case UserDelete:
+				if id, ok := info.Message.(float64); ok { // JSON numbers are float64 by default
+					processErr := handler.DeleteUser(int(id))
+					if processErr != nil {
+						log.Printf("Failed to process message %v: %v", info, processErr)
+						d.Nack(false, false)
+					}
+				} else {
+					log.Printf("Invalid message type for UserDelete: %v", info.Message)
+					d.Nack(false, false)
+				}
 			}
-			// else {
-			// 	d.Ack(false) // Acknowledge the message
-			// }
 		}
 	}()
 	return nil
