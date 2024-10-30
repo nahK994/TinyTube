@@ -9,18 +9,8 @@ type AuthTable struct {
 	IssueTime    time.Time `json:"issue_time"`
 }
 
-type UserCreate struct {
+type User struct {
 	ID       int    `json:"id"`
 	Email    string `json:"email"`
-	Password string `json:"password,omitempty"`
-}
-
-type UserDetails struct {
-	ID       int    `json:"id"`
-	Password string `json:"password,omitempty"`
-}
-
-type ChangeUpdateRequest struct {
-	Id       int    `json:"email"`
 	Password string `json:"password,omitempty"`
 }

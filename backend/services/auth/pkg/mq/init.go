@@ -15,7 +15,7 @@ type MQ struct {
 	repo    db.Repository
 }
 
-func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
+func InitMQ(mqConfig app.MQConfig, repo db.Repository) (*MQ, error) {
 	connStr := fmt.Sprintf("amqp://%s:%s@%s:%d/", mqConfig.Username, mqConfig.Password, mqConfig.Host, mqConfig.Port)
 	conn, err := amqp.Dial(connStr)
 	if err != nil {
@@ -43,5 +43,6 @@ func InitMQ(mqConfig app.MQConfig) (*MQ, error) {
 		conn:    conn,
 		channel: channel,
 		queue:   queue,
+		repo:    repo,
 	}, nil
 }

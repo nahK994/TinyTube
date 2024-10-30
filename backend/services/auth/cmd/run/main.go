@@ -22,7 +22,7 @@ func main() {
 
 	handler := handlers.GetHandler(db)
 
-	mq, err := mq.InitMQ(conf.MQ)
+	mq, err := mq.InitMQ(conf.MQ, db)
 	if err != nil {
 		mq.Close()
 		log.Fatal(err)

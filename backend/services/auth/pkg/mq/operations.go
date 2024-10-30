@@ -10,12 +10,10 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type MessageProcessor interface {
-	ConsumeMessages() error
-	Close()
-}
-
 func (mq *MQ) Close() {
+	if mq == nil {
+		return
+	}
 	if mq.channel != nil {
 		mq.channel.Close()
 	}
@@ -78,7 +76,7 @@ func (mq *MQ) processMessage(info MessageAction) error {
 }
 
 func (mq *MQ) processUserCreate(info MessageAction) error {
-	var msg CreateMessage
+	var msg db.User
 	if err := parseMessage(info, &msg); err != nil {
 		return err
 	}
@@ -89,10 +87,10 @@ func (mq *MQ) processUserCreate(info MessageAction) error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	return mq.repo.CreateUser(&db.UserCreate{
-		ID:       msg.Id,
-		Email:    msg.Email,
+	return mq.repo.CreateUser(&db.User{
+		ID:       msg.ID,
 		Password: hashedPassword,
+		Email:    msg.Email,
 	})
 }
 

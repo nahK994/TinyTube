@@ -9,12 +9,12 @@ import (
 )
 
 type Handler struct {
-	userRepo db.Repository
-	msg      mq.MessageProcessor
+	repo db.Repository
+	msg  mq.MessageProcessor
 }
 
 func GetHandler(userRepo db.Repository, msg mq.MessageProcessor) *Handler {
-	return &Handler{userRepo: userRepo, msg: msg}
+	return &Handler{repo: userRepo, msg: msg}
 }
 
 func writeErrorResponse(w http.ResponseWriter, status int, message string) {
@@ -43,7 +43,7 @@ func (h *Handler) HandleUserActions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) delete(w http.ResponseWriter, id int) {
-	if err := h.userRepo.DeleteUser(id); err != nil {
+	if err := h.repo.DeleteUser(id); err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to delete user")
 		return
 	}
@@ -61,7 +61,7 @@ func (h *Handler) update(w http.ResponseWriter, data io.ReadCloser, id int) {
 		return
 	}
 
-	user, err := h.userRepo.UpdateUser(id, &userInfo)
+	user, err := h.repo.UpdateUser(id, &userInfo)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to update user")
 		return
@@ -72,7 +72,7 @@ func (h *Handler) update(w http.ResponseWriter, data io.ReadCloser, id int) {
 }
 
 func (h *Handler) get(w http.ResponseWriter, id int) {
-	user, err := h.userRepo.GetUserDetails(id)
+	user, err := h.repo.GetUserDetails(id)
 	if err != nil {
 		writeErrorResponse(w, http.StatusNotFound, "User not found")
 		return
@@ -89,7 +89,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.Register(&userRequest)
+	user, err := h.repo.Register(&userRequest)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to register user")
 		return
