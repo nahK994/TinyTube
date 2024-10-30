@@ -27,11 +27,10 @@ func main() {
 	handler := handlers.GetHandler(db, mq)
 
 	r := mux.NewRouter()
-	userRouter := r.PathPrefix("/users").Subrouter()
+	userRouter := r.PathPrefix("/user").Subrouter()
 	userRouter.Use(security.Middleware)
-	userRouter.HandleFunc("/{id}", handler.DeleteUser).Methods(http.MethodDelete)
-	userRouter.HandleFunc("/{id}", handler.GetProfile).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{id}", handler.UpdateUser).Methods(http.MethodPut)
+	userRouter.HandleFunc("", handler.HandleUserActions).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
+
 	r.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)

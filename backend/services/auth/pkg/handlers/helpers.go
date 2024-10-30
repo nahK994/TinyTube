@@ -31,10 +31,10 @@ func generateJWT(id int) (string, error) {
 func generateRefreshToken(id int) (string, error) {
 	expTime := time.Now().Add(time.Duration(app.GetConfig().App.RefreshToken_exp_hours) * time.Hour).Unix()
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": id,
-		"iss":    "TinyTube",
-		"exp":    expTime,
-		"iat":    time.Now().Unix(),
+		"sub": id,
+		"iss": "TinyTube",
+		"exp": expTime,
+		"iat": time.Now().Unix(),
 	})
 
 	jwtSecretKey := app.GetConfig().App.JWT_secret_key

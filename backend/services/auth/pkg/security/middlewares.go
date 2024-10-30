@@ -4,11 +4,9 @@ import (
 	"auth-service/pkg/app"
 	"context"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/gorilla/mux"
 )
 
 func authenticate(next http.Handler) http.Handler {
@@ -40,27 +38,13 @@ func authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func authorize(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userId := r.Context().Value("userId").(int)
-		vars := mux.Vars(r)
-		resourceId, err := strconv.Atoi(vars["id"])
-
-		if err != nil || userId != resourceId {
-			http.Error(w, "Permission denied", http.StatusForbidden)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type middlewareFunc func(http.Handler) http.Handler
+
+		// NOTE: add additional middlewares here
 		middlewares := []middlewareFunc{
 			authenticate,
-			authorize,
 		}
 
 		for i := len(middlewares) - 1; i >= 0; i-- {
