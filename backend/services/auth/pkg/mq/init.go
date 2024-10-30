@@ -2,6 +2,7 @@ package mq
 
 import (
 	"auth-service/pkg/app"
+	"auth-service/pkg/db"
 	"fmt"
 
 	"github.com/streadway/amqp"
@@ -11,6 +12,7 @@ type MQ struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
 	queue   amqp.Queue
+	repo    db.Repository
 }
 
 func InitMQ(mqConfig app.MQConfig) (*MQ, error) {

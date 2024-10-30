@@ -5,6 +5,7 @@ import (
 	"auth-service/pkg/db"
 	"auth-service/pkg/handlers"
 	"auth-service/pkg/mq"
+	"auth-service/pkg/security"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,7 +27,7 @@ func main() {
 		mq.Close()
 		log.Fatal(err)
 	}
-	err = mq.Start(handler)
+	err = mq.Start()
 	if err != nil {
 		mq.Close()
 		log.Fatal(err)
@@ -34,6 +35,10 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
+
+	secureRoute := r.PathPrefix("change-password").Subrouter()
+	secureRoute.Use(security.Middleware)
+	secureRoute.HandleFunc("", handler.ChangePassword).Methods(http.MethodPut)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	fmt.Println("Starting auth service on", srvAddress)

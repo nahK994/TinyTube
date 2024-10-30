@@ -20,7 +20,7 @@ type UserDetails struct {
 	Password string `json:"password,omitempty"`
 }
 
-type PasswordUpdate struct {
+type ChangeUpdateRequest struct {
 	Id       int    `json:"email"`
 	Password string `json:"password,omitempty"`
 }

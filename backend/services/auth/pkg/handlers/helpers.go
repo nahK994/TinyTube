@@ -41,9 +41,3 @@ func generateRefreshToken(id int) (string, error) {
 	tokenString, err := claims.SignedString(jwtSecretKey)
 	return tokenString, err
 }
-
-func hashPassword(password string) (string, error) {
-	cost := app.GetConfig().App.Bcrypt_password_cost
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), cost)
-	return string(bytes), err
-}

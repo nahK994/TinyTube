@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"auth-service/pkg/db"
+	"auth-service/pkg/utils"
 	"encoding/json"
 	"net/http"
 )
@@ -12,6 +13,32 @@ type Handler struct {
 
 func GetHandler(userRepo db.Repository) *Handler {
 	return &Handler{repo: userRepo}
+}
+
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	var reqBody db.ChangeUpdateRequest
+	json.NewDecoder(r.Body).Decode(&reqBody)
+
+	var hashedPassword string
+	err := utils.HashPassword(reqBody.Password, &hashedPassword)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.repo.UpdatePassword(&db.ChangeUpdateRequest{
+		Id:       reqBody.Id,
+		Password: hashedPassword,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("password updated")
 }
 
 func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -49,36 +76,4 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
-}
-
-func (h *Handler) CreateUser(userCreate db.UserCreate) error {
-	hashedPassword, err := hashPassword(userCreate.Password)
-	if err != nil {
-		return err
-	}
-
-	err = h.repo.CreateUser(&db.UserCreate{
-		ID:       userCreate.ID,
-		Email:    userCreate.Email,
-		Password: hashedPassword,
-	})
-	return err
-}
-
-func (h *Handler) UpdatePassword(userPassword db.PasswordUpdate) error {
-	hashedPassword, err := hashPassword(userPassword.Password)
-	if err != nil {
-		return err
-	}
-
-	err = h.repo.UpdatePassword(&db.PasswordUpdate{
-		Id:       userPassword.Id,
-		Password: hashedPassword,
-	})
-	return err
-}
-
-func (h *Handler) DeleteUser(id int) error {
-	err := h.repo.DeleteUser(id)
-	return err
 }

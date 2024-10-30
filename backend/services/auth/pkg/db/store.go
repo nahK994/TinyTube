@@ -5,7 +5,7 @@ import "fmt"
 type Repository interface {
 	GetUserByEmail(email string) (*UserDetails, error)
 	CreateUser(userRequest *UserCreate) error
-	UpdatePassword(info *PasswordUpdate) error
+	UpdatePassword(info *ChangeUpdateRequest) error
 	DeleteUser(id int) error
 }
 
@@ -35,7 +35,7 @@ func (d *DB) CreateUser(userRequest *UserCreate) error {
 	return nil
 }
 
-func (d *DB) UpdatePassword(info *PasswordUpdate) error {
+func (d *DB) UpdatePassword(info *ChangeUpdateRequest) error {
 	_, err := d.db.Exec(`UPDATE users SET password=$1 WHERE id=$2`, info.Password, info.Id)
 	return err
 }
