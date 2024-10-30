@@ -36,7 +36,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
 
-	secureRoute := r.PathPrefix("change-password").Subrouter()
+	secureRoute := r.PathPrefix("/change-password").Subrouter()
 	secureRoute.Use(security.Middleware)
 	secureRoute.HandleFunc("", handler.ChangePassword).Methods(http.MethodPut)
 

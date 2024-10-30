@@ -16,7 +16,8 @@ func GetHandler(userRepo db.Repository) *Handler {
 }
 
 func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	var reqBody db.User
+	id := r.Context().Value("userId").(int)
+	var reqBody db.ChangePasswordRequest
 	json.NewDecoder(r.Body).Decode(&reqBody)
 
 	var hashedPassword string
@@ -27,7 +28,7 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.repo.UpdatePassword(&db.User{
-		ID:       reqBody.ID,
+		ID:       id,
 		Password: hashedPassword,
 	})
 

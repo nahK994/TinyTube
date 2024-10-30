@@ -5,13 +5,13 @@ import (
 )
 
 type Repository interface {
-	Register(user *UserRequest) (*UserResponse, error)
+	Register(user *User) (*UserResponse, error)
 	DeleteUser(id int) error
 	GetUserDetails(id int) (*UserResponse, error)
-	UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserUpdateInfo, error)
+	UpdateUser(id int, userUpdateInfo *UserUpdateRequest) (*UserUpdateRequest, error)
 }
 
-func (d *DB) Register(userRequest *UserRequest) (*UserResponse, error) {
+func (d *DB) Register(userRequest *User) (*UserResponse, error) {
 	var userResponse UserResponse
 	err := d.db.QueryRow(`
 	INSERT INTO users (name, email, profile_pic) 
@@ -51,8 +51,8 @@ func (d *DB) GetUserDetails(id int) (*UserResponse, error) {
 	return &user, nil
 }
 
-func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateInfo) (*UserUpdateInfo, error) {
-	var updatedUser UserUpdateInfo
+func (d *DB) UpdateUser(id int, userUpdateInfo *UserUpdateRequest) (*UserUpdateRequest, error) {
+	var updatedUser UserUpdateRequest
 
 	err := d.db.QueryRow(`
 		UPDATE users

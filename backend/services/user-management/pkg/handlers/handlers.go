@@ -55,7 +55,7 @@ func (h *Handler) delete(w http.ResponseWriter, id int) {
 }
 
 func (h *Handler) update(w http.ResponseWriter, data io.ReadCloser, id int) {
-	var userInfo db.UserUpdateInfo
+	var userInfo db.UserUpdateRequest
 	if err := json.NewDecoder(data).Decode(&userInfo); err != nil {
 		writeErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
@@ -83,7 +83,7 @@ func (h *Handler) get(w http.ResponseWriter, id int) {
 }
 
 func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	var userRequest db.UserRequest
+	var userRequest db.User
 	if err := json.NewDecoder(r.Body).Decode(&userRequest); err != nil {
 		writeErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
