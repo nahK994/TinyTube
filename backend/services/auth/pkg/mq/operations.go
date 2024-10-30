@@ -121,6 +121,12 @@ func parseMessage(info MessageAction, v interface{}) error {
 			} else {
 				return fmt.Errorf("v is not of type *int for UserDelete")
 			}
+		case float64: // If it comes in as float64, cast it to int
+			if intPtr, ok := v.(*int); ok {
+				*intPtr = int(id)
+			} else {
+				return fmt.Errorf("v is not of type *int for UserDelete")
+			}
 		default:
 			return fmt.Errorf("unexpected type for UserDelete: %T", info.Message)
 		}
