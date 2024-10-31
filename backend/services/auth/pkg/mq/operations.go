@@ -57,9 +57,10 @@ func (mq *MQ) processMessages(msgs <-chan amqp.Delivery) {
 		if err := mq.processMessage(info); err != nil {
 			log.Printf("Failed to process message %v: %v", info, err)
 			d.Nack(false, false)
-		} else {
-			d.Ack(false)
 		}
+		// else {
+		// 	d.Ack(false)
+		// }
 	}
 }
 
