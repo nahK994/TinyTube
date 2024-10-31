@@ -34,6 +34,6 @@ func main() {
 	r.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	fmt.Println("Starting auth service on", srvAddress)
+	fmt.Println("Starting user-management service on", srvAddress)
 	log.Fatal(http.ListenAndServe(srvAddress, r))
 }
