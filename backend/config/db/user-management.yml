@@ -10,3 +10,9 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=user_management_db
+    networks:
+      - user_management_network
+
+networks:
+  user_management_network:
+    driver: bridge

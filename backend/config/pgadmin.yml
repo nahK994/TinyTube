@@ -10,3 +10,12 @@ services:
       PGADMIN_LISTEN_PORT: 80
     ports:
       - 15432:80
+    networks:
+      - db_auth_network
+      - db_user_management_network
+
+networks:
+  db_auth_network:
+    external: true
+  db_user_management_network:
+    external: true
