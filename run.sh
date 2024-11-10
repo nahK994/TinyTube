@@ -24,60 +24,67 @@ echo "34) Kill"
 echo "------------------"
 read -p "Type: " cmd
 
+# Function to handle Docker Compose operations
+run_docker_compose() {
+    local config_file=$1
+    local action=$2
+    pushd backend/config/ || exit
+    docker compose -f "$config_file" "$action" -d && echo "$config_file ${action}ed"
+    popd || exit
+}
+
+# RabbitMQ commands
 if [[ $cmd == 31 ]]; then
-    pushd backend/config/ || exit
-    docker compose -f rabbitmq.yml up -d && echo "RabbitMQ started"
-    popd || exit
-    exit 0
+    run_docker_compose "rabbitmq.yml" "up"
 elif [[ $cmd == 32 ]]; then
-    pushd backend/config/ || exit
-    docker compose -f rabbitmq.yml down && echo "RabbitMQ stopped"
-    popd || exit
-    exit 0
-elif [[ $cmd == 33 ]]; then
-    pushd backend/config/ || exit
-    docker compose -f pgadmin.yml up -d && echo "PGADMIN started"
-    popd || exit
-    exit 0
-elif [[ $cmd == 34 ]]; then
-    pushd backend/config/ || exit
-    docker compose -f pgadmin.yml down && echo "PGADMIN stopped"
-    popd || exit
-    exit 0
+    run_docker_compose "rabbitmq.yml" "down"
 fi
 
+# PgAdmin commands
+if [[ $cmd == 33 ]]; then
+    run_docker_compose "pgadmin.yml" "up"
+elif [[ $cmd == 34 ]]; then
+    run_docker_compose "pgadmin.yml" "down"
+fi
+
+# Set variables for application directories and database configuration files
 app_dir=''
 db_file=''
 
 if [[ $cmd -ge 1 && $cmd -le 5 ]]; then
-    app_dir=backend/services/auth/
-    db_file=auth.yml
+    app_dir="backend/services/auth"
+    db_file="auth.yml"
 elif [[ $cmd -ge 6 && $cmd -le 10 ]]; then
-    app_dir=backend/services/user-management/
-    db_file=user-management.yml
+    app_dir="backend/services/user-management"
+    db_file="user-management.yml"
 else
     echo "Invalid option"
     exit 1
 fi
 
-if [[ $((cmd % 5)) == 1 ]]; then
-    pushd "$app_dir/cmd/run/" || exit
-    go run main.go && echo "Auth/User-Management APP started"
+# Function to start or stop the application
+run_go_app() {
+    local action_dir=$1
+    local message=$2
+    pushd "$app_dir/cmd/$action_dir/" || exit
+    go run main.go && echo "$message"
     popd || exit
-elif [[ $((cmd % 5)) == 2 ]]; then
-    pushd "$app_dir/cmd/kill/" || exit
-    go run main.go && echo "Auth/User-Management APP stopped"
-    popd || exit
-elif [[ $((cmd % 5)) == 3 ]]; then
-    pushd backend/config/db/ || exit
-    docker compose -f $db_file up -d && echo "Database started"
-    popd || exit
-elif [[ $((cmd % 5)) == 4 ]]; then
-    pushd backend/config/db/ || exit
-    docker compose -f $db_file down && echo "Database stopped"
-    popd || exit
-elif [[ $((cmd % 5)) == 0 ]]; then
-    pushd "$app_dir/cmd/playground/" || exit
-    go run main.go && echo "Playground started"
-    popd || exit
-fi
+}
+
+# Handle commands for starting/stopping app, DB, and playground
+case $((cmd % 5)) in
+    1)  run_go_app "run" "App started" ;;
+    2)  run_go_app "kill" "App stopped" ;;
+    3)  
+        pushd backend/config/db/ || exit
+        docker compose -f "$db_file" up -d && echo "Database started"
+        popd || exit
+        ;;
+    4)  
+        pushd backend/config/db/ || exit
+        docker compose -f "$db_file" down && echo "Database stopped"
+        popd || exit
+        ;;
+    0)  run_go_app "playground" "Playground started" ;;
+    *)  echo "Invalid command" ;;
+esac
