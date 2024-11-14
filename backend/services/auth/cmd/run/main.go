@@ -8,9 +8,8 @@ import (
 	"auth-service/pkg/security"
 	"fmt"
 	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -33,14 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
+	r := gin.Default()
+	r.POST("/login", handler.LoginUser)
 
-	secureRoute := r.PathPrefix("/change-password").Subrouter()
-	secureRoute.Use(security.Middleware)
-	secureRoute.HandleFunc("", handler.ChangePassword).Methods(http.MethodPut)
+	secureRoute := r.Group("/change-password")
+	secureRoute.Use(security.AuthMiddleware())
+	secureRoute.PUT("", handler.ChangePassword)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	fmt.Println("Starting auth service on", srvAddress)
-	log.Fatal(http.ListenAndServe(srvAddress, r))
+	log.Fatal(r.Run(srvAddress))
 }
