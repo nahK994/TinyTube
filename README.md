@@ -34,25 +34,34 @@
 ## Services 🛠️
 
 1. **Auth Service** 👥🔐
-   - JWT-based authentication 🔑🔒
+   - Manages user authentication, registration, and access tokens. 🔑🔒
 
 2. **User Management Service** 👥🔐
-   - Profile management (name, email, profile pic, etc.) 🖼️📧
+   - Handles user profile information, account settings, and possibly subscription details. 🖼️📧
 
 3. **User Interaction Service** 💬👍
-   - Likes, comments, subscriptions ❤️💬🔔
+   - Manages comments, likes, views, and other user interactions. ❤️💬🔔
 
 4. **Recommendation Service** 🤖🎯
-   - Video suggestions based on user behavior and viewing history 📈🎬
+   - Provides personalized video recommendations based on user behavior and preferences. 📈🎬
 
-5. **Video Upload & Transcoding Service** ⬆️📹➡️📂
-   - Transcoding videos into multiple formats 🖥️➡️📺
+5. **Video Upload Service** ⬆️📹➡️📂
+   - Manages the upload, processing, transcoding into multiple formats and storage of video files. 🖥️➡️📺
 
 6. **Video Streaming Service** 📡🎥
    - HLS or DASH video streaming 🔄📺
 
-7. **Thumbnail Management Service** 🖼️📸
-   - Generate or upload thumbnails for uploaded videos 📂🖼️
+7. **Video Metadata Service** 🗂️📝
+   - Stores and retrieves metadata (e.g., title, description, tags, timestamps) associated with videos. 🖼️📌
+
+8. **Notification Service** 🔔📲
+   - Sends notifications related to new video uploads, comments, or other relevant updates. 📬📩
+
+9. **Analytics Service** 📊📈
+   - Tracks user engagement metrics, video performance, and other analytics. 📉🔍
+
+10. **RabbitMQ Service** 🐇📬
+   - Facilitates asynchronous communication between services, especially useful for tasks like video processing and notification dispatch. 📤🔄
 
 ## How to Run the Project 🏃‍♂️🛠️
 _(Instructions on running services locally with Docker Compose, etc. coming soon... Stay tuned! 📻)_
