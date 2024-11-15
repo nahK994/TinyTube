@@ -10,7 +10,7 @@ import (
 	"user-management/pkg/mq"
 	"user-management/pkg/security"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -26,13 +26,15 @@ func main() {
 	}
 	handler := handlers.GetHandler(db, mq)
 
-	r := mux.NewRouter()
-	userRouter := r.PathPrefix("/user").Subrouter()
-	userRouter.Use(security.Middleware)
-	userRouter.HandleFunc("", handler.HandleUserActions).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
+	r := gin.Default()
+	authRoutes := r.Group("/users", security.MiddlewareManager()) // Protect routes with auth middleware
+	{
+		authRoutes.GET("/:id", handler.HandleUserActions)
+		authRoutes.PUT("/:id", handler.HandleUserActions)
+		authRoutes.DELETE("/:id", handler.HandleUserActions)
+	}
 
-	r.HandleFunc("/register", handler.RegisterUser).Methods(http.MethodPost)
-
+	r.POST("/register", handler.RegisterUser) // Public route
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	fmt.Println("Starting user-management service on", srvAddress)
 	log.Fatal(http.ListenAndServe(srvAddress, r))

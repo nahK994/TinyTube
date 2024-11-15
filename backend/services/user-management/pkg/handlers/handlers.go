@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"user-management/pkg/db"
 	"user-management/pkg/mq"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -17,81 +17,78 @@ func GetHandler(userRepo db.Repository, msg mq.MessageProcessor) *Handler {
 	return &Handler{repo: userRepo, msg: msg}
 }
 
-func writeErrorResponse(w http.ResponseWriter, status int, message string) {
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
-}
-
-func (h *Handler) HandleUserActions(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+// HandleUserActions handles actions like GET, PUT, DELETE for a user.
+func (h *Handler) HandleUserActions(c *gin.Context) {
+	userId, ok := c.Get("userId") // Get user ID from context (set by middleware).
 	if !ok {
-		writeErrorResponse(w, http.StatusUnauthorized, "Invalid or missing user ID")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing user ID"})
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 
-	switch r.Method {
+	id := userId.(int) // Ensure the type is correct.
+
+	switch c.Request.Method {
 	case http.MethodDelete:
-		h.delete(w, userId)
+		h.delete(c, id)
 	case http.MethodPut:
-		h.update(w, r.Body, userId)
+		h.update(c, id)
 	case http.MethodGet:
-		h.get(w, userId)
+		h.get(c, id)
 	default:
-		writeErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
+		c.JSON(http.StatusMethodNotAllowed, gin.H{"error": "Method not allowed"})
 	}
 }
 
-func (h *Handler) delete(w http.ResponseWriter, id int) {
+func (h *Handler) delete(c *gin.Context, id int) {
 	if err := h.repo.DeleteUser(id); err != nil {
-		writeErrorResponse(w, http.StatusInternalServerError, "Failed to delete user")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 		return
 	}
+
 	h.msg.PublishMessage(mq.MessageAction{
 		ActionType: mq.UserDelete,
 		Message:    id,
 	})
-	w.WriteHeader(http.StatusNoContent)
+
+	c.Status(http.StatusNoContent)
 }
 
-func (h *Handler) update(w http.ResponseWriter, data io.ReadCloser, id int) {
+func (h *Handler) update(c *gin.Context, id int) {
 	var userInfo db.UserUpdateRequest
-	if err := json.NewDecoder(data).Decode(&userInfo); err != nil {
-		writeErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+	if err := c.ShouldBindJSON(&userInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 
 	user, err := h.repo.UpdateUser(id, &userInfo)
 	if err != nil {
-		writeErrorResponse(w, http.StatusInternalServerError, "Failed to update user")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	c.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) get(w http.ResponseWriter, id int) {
+func (h *Handler) get(c *gin.Context, id int) {
 	user, err := h.repo.GetUserDetails(id)
 	if err != nil {
-		writeErrorResponse(w, http.StatusNotFound, "User not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	c.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) RegisterUser(c *gin.Context) {
 	var userRequest db.User
-	if err := json.NewDecoder(r.Body).Decode(&userRequest); err != nil {
-		writeErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+	if err := c.ShouldBindJSON(&userRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 
 	user, err := h.repo.Register(&userRequest)
 	if err != nil {
-		writeErrorResponse(w, http.StatusInternalServerError, "Failed to register user")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return
 	}
 
@@ -104,9 +101,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
+	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
 	})
 }
