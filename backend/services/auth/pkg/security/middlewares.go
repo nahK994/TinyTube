@@ -10,7 +10,7 @@ import (
 )
 
 // AuthMiddleware is a Gin-compatible authentication middleware
-func AuthMiddleware() gin.HandlerFunc {
+func authenticateMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the token from the Authorization header
 		tokenString := c.GetHeader("Authorization")
@@ -44,5 +44,26 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, "Invalid or expired token")
 			c.Abort()
 		}
+	}
+}
+
+// MiddlewareManager applies multiple middlewares in sequence.
+func MiddlewareManager() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Define your middlewares in order
+		middlewares := []gin.HandlerFunc{
+			authenticateMiddleware(),
+			// Add other middlewares here if necessary
+		}
+
+		// Execute middlewares sequentially
+		for _, middleware := range middlewares {
+			middleware(c)
+			if c.IsAborted() {
+				return // Stop processing if a middleware aborts
+			}
+		}
+
+		c.Next()
 	}
 }

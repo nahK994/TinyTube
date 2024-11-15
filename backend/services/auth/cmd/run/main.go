@@ -36,7 +36,7 @@ func main() {
 	r.POST("/login", handler.LoginUser)
 
 	secureRoute := r.Group("/change-password")
-	secureRoute.Use(security.AuthMiddleware())
+	secureRoute.Use(security.MiddlewareManager())
 	secureRoute.PUT("", handler.ChangePassword)
 
 	srvAddress := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)

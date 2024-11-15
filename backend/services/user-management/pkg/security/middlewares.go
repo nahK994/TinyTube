@@ -2,7 +2,6 @@ package security
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"user-management/pkg/app"
@@ -14,7 +13,6 @@ import (
 // AuthenticateMiddleware validates JWT tokens and injects user information into the context.
 func authenticateMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("test 1")
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
