@@ -1,13 +1,13 @@
 package main
 
 import (
+	"dfs-worker/pkg/app"
 	"fmt"
 	"os/exec"
-	"video-upload/pkg/app"
 )
 
 func main() {
-	port := app.GetConfig().App.Port
+	port := app.GetConfig().Port
 	cmdStr := fmt.Sprintf("sudo kill -9 $(sudo lsof -t -i:%d)", port)
 
 	cmd := exec.Command("/bin/sh", "-c", cmdStr)
