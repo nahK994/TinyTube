@@ -11,7 +11,7 @@
   - WebSockets 🔄 for real-time interactions
 - **Frontend**: Not yet decided 🤔 (TBD, any ideas? 🧠💡)
 
-## Project Milestones 🏁📅
+<!-- ## Project Milestones 🏁📅
 
 ### Milestone 1: Initial Setup 🔨
 - Set up monorepo structure 🗂️
@@ -29,7 +29,7 @@
 
 ### Milestone 4: User Interaction and Real-Time Updates 💬💖
 - Implement like, comment, and subscribe features 👍💬🔔
-- Integrate WebSockets for real-time feedback 📡🔄
+- Integrate WebSockets for real-time feedback 📡🔄 -->
 
 ## Services 🛠️
 
@@ -46,7 +46,7 @@
    - Provides personalized video recommendations based on user behavior and preferences. 📈🎬
 
 5. **Video Upload Service** ⬆️📹➡️📂
-   - Manages the upload, processing, transcoding into multiple formats and storage of video files. 🖥️➡️📺
+   - Manages the uploading, transcoding into multiple formats, data replication and storage of video files. 🖥️➡️📺
 
 6. **Video Streaming Service** 📡🎥
    - HLS or DASH video streaming 🔄📺
