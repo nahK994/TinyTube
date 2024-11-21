@@ -36,9 +36,9 @@ func TranscodeHandler(c *gin.Context) {
 	dst := filepath.Join(storagePath, "transcoded_"+filename)
 
 	if err := transcode(src, dst); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to transcode file"})
+		c.JSON(http.StatusInternalServerError, "Failed to transcode file")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "File transcoded", "transcoded_file": dst})
+	c.JSON(http.StatusOK, "File transcoded")
 }

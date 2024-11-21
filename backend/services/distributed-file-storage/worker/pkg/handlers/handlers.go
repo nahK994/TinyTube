@@ -12,24 +12,22 @@ import (
 
 const storagePath = "./storage/"
 
-// StoreHandler stores a file locally
 func StoreHandler(c *gin.Context) {
 	header, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse file"})
+		c.JSON(http.StatusBadRequest, "Failed to parse file")
 		return
 	}
 
 	filename := filepath.Join(storagePath, header.Filename)
 	if err := c.SaveUploadedFile(header, filename); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		c.JSON(http.StatusInternalServerError, "Failed to save file")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "File stored", "filename": header.Filename})
+	c.JSON(http.StatusOK, fmt.Sprintf("file stored %s\n", header.Filename))
 }
 
-// ReplicateHandler replicates a file locally
 func ReplicateHandler(c *gin.Context) {
 	filename := c.PostForm("filename")
 	src := filepath.Join(storagePath, filename)
@@ -37,30 +35,29 @@ func ReplicateHandler(c *gin.Context) {
 
 	input, err := os.Open(src)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open source file"})
+		c.JSON(http.StatusInternalServerError, "Failed to open source file")
 		return
 	}
 	defer input.Close()
 
 	output, err := os.Create(dst)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create replica"})
+		c.JSON(http.StatusInternalServerError, "Failed to create replica")
 		return
 	}
 	defer output.Close()
 
 	io.Copy(output, input)
-	c.JSON(http.StatusOK, gin.H{"message": "File replicated"})
+	c.JSON(http.StatusOK, "File replicated")
 }
 
-// RetrieveHandler streams a file to the client
 func RetrieveHandler(c *gin.Context) {
 	filename := c.Param("filename")
 	filepath := filepath.Join(storagePath, filename)
 
 	file, err := os.Open(filepath)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+		c.JSON(http.StatusNotFound, "File not found")
 		return
 	}
 	defer file.Close()

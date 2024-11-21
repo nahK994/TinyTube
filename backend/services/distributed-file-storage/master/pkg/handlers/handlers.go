@@ -15,7 +15,7 @@ import (
 func UploadHandler(c *gin.Context) {
 	header, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse file"})
+		c.JSON(http.StatusBadRequest, "Failed to parse file")
 		return
 	}
 
@@ -28,11 +28,11 @@ func UploadHandler(c *gin.Context) {
 	defer fileContent.Close()
 	resp, err := http.Post(fmt.Sprintf("%s/store", worker), c.ContentType(), fileContent)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store file on worker"})
+		c.JSON(http.StatusInternalServerError, "Failed to store file on worker")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("File uploaded to %s", worker), "fileID": fileID})
+	c.JSON(http.StatusOK, fmt.Sprintf("File uploaded to %s fileID %d\n", worker, fileID))
 }
 
 func ReplicateHandler(c *gin.Context) {
@@ -40,7 +40,7 @@ func ReplicateHandler(c *gin.Context) {
 		FileID int `json:"file_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, "Invalid request")
 		return
 	}
 
@@ -53,11 +53,11 @@ func ReplicateHandler(c *gin.Context) {
 
 	resp, err := http.PostForm(fmt.Sprintf("%s/replicate", worker), data)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to replicate file"})
+		c.JSON(http.StatusInternalServerError, "Failed to replicate file")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("File replicated to %s", worker)})
+	c.JSON(http.StatusOK, fmt.Sprintf("File replicated to %s", worker))
 }
 
 func RetrieveHandler(c *gin.Context) {
@@ -66,7 +66,7 @@ func RetrieveHandler(c *gin.Context) {
 	worker := config.Workers[fileID%len(config.Workers)]
 	resp, err := http.Get(fmt.Sprintf("%s/retrieve/%d", worker, fileID))
 	if err != nil || resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve file"})
+		c.JSON(http.StatusInternalServerError, "Failed to retrieve file")
 		return
 	}
 

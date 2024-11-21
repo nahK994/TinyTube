@@ -15,7 +15,7 @@ func authenticateMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
+			c.JSON(http.StatusUnauthorized, "Authorization header missing")
 			c.Abort() // Stop further processing
 			return
 		}
@@ -28,7 +28,7 @@ func authenticateMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.JSON(http.StatusUnauthorized, "Invalid or expired token")
 			c.Abort()
 			return
 		}
