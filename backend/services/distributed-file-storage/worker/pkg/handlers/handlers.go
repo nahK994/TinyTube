@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"dfs-worker/transcoder"
 	"fmt"
 	"io"
 	"net/http"
@@ -69,18 +68,4 @@ func RetrieveHandler(c *gin.Context) {
 	c.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 	c.Writer.Header().Set("Content-Type", "application/octet-stream")
 	io.Copy(c.Writer, file)
-}
-
-// TranscodeHandler performs video transcoding
-func TranscodeHandler(c *gin.Context) {
-	filename := c.PostForm("filename")
-	src := filepath.Join(storagePath, filename)
-	dst := filepath.Join(storagePath, "transcoded_"+filename)
-
-	if err := transcoder.Transcode(src, dst); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to transcode file"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "File transcoded", "transcoded_file": dst})
 }

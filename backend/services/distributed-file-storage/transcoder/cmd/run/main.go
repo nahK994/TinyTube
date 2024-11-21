@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dfs-worker/pkg/handlers"
+	"dfs-transcoder/pkg/handlers"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -9,9 +9,7 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.POST("/store", handlers.StoreHandler)
-	r.POST("/replicate", handlers.ReplicateHandler)
-	r.GET("/retrieve/:filename", handlers.RetrieveHandler)
+	r.POST("/transcode", handlers.TranscodeHandler)
 
 	log.Println("Worker Service is running on port 8081")
 	log.Fatal(r.Run(":8081"))
